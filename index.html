@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <html>
@@ -5,6 +6,7 @@
         <title>Document</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
         <link rel="stylesheet" href="./style.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     </head>
 <body>
 <div>
@@ -14,25 +16,25 @@
 <form  id="myform" type="post">
     <label>
         Квадратура:<br>
-        <input name="kvm" type="text" placeholder="Ввод" inputmode="numeric" required="required" id="kvm"/>
+        <input name="kvm" type="text" placeholder="Ввод" required="required" id="kvm"/>
         кв.м.
     </label>
     <br>
     <label>
         Стоимость квартиры в новостройке:<br>
-        <input name="pricenew" id="pricenew" type="text" placeholder="Ввод" inputmode="numeric" required="required"/>
+        <input name="pricenew" id="pricenew" type="text" placeholder="Ввод" required="required"/>
         руб.
     </label>
     <br>
     <label>
         Величина первоначального взноса:<br>
-        <input name="firstmoney" id="firstmoney" type="text" placeholder="Ввод" inputmode="numeric" required="required"/>
+        <input name="firstmoney" id="firstmoney" type="text" placeholder="Ввод" required="required"/>
         руб.
     </label>
     <br>
     <label>
         Процентная ставка в новостройке:<br>
-        <input name="procentstnew" id="procentstnew" type="text" placeholder="Ввод" inputmode="numeric" required="required"/>
+        <input name="procentstnew" id="procentstnew" type="text" placeholder="Ввод" required="required"/>
         %
     </label>
     <br>
@@ -44,7 +46,7 @@
     <br>
     <label>
         Процентная ставка во вторичке:<br>
-        <input name="provstvtor" id="provstvtor" type="text" placeholder="Ввод" inputmode="numeric" required="required"/>
+        <input name="provstvtor" id="provstvtor" type="text" placeholder="Ввод" required="required"/>
         %
     </label>    
     <br>
@@ -73,7 +75,37 @@
 
 
 </script> -->
+
+
 <script>
+
+function digits_int(target){
+	val = $(target).val().replace(/[^0-9]/g, '');
+	val = val.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+	$(target).val(val);
+}
+ 
+$(function($){
+	$('body').on('input', '#pricenew', function(e){
+		digits_int(this);
+	});
+	digits_int('#pricenew');
+});
+
+$(function($){
+	$('body').on('input', '#firstmoney', function(e){
+		digits_int(this);
+	});
+	digits_int('#firstmoney');
+});
+
+function numberWithSpaces(x) {
+  var parts = x.toString().split(".");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  return parts.join(".");
+}
+
+
     const form = document.getElementById('myform');
 
 form.addEventListener('submit', callbackFunction);
@@ -86,20 +118,26 @@ myFormData.forEach((value, key) => (formDataObj[key] = value));
     console.log(formDataObj);
     result(formDataObj);
 };
+
 function result(formDataObj)
-{   if(document.getElementById('result'))
+{   
+    if(document.getElementById('result'))
     {
         let element = document.getElementById('result');
         element.remove();
     }
-    console.log('SDSDG'+formDataObj.firstmoney);
+    //console.log('SDSDG'+formDataObj.firstmoney);
     let kvm=formDataObj.kvm;    
-    let prn=formDataObj.pricenew;
-    let frm=formDataObj.firstmoney;
+    let prn=formDataObj.pricenew.replace(/\s+/g, '');
+    let frm=formDataObj.firstmoney.replace(/\s+/g, '');
     let prsn=formDataObj.procentstnew;
+    prsn=prsn.replace(/,/g,'.');
+    prsn=prsn/100;
     let srok=formDataObj.srok;
     let prsv=formDataObj.provstvtor;
-    let sumkred =formDataObj.pricenew-formDataObj.firstmoney;
+    prsv=prsv.replace(/,/g,'.');
+    prsv=prsv/100;
+    let sumkred =prn-frm;
     let platmn=((sumkred*prsn/12)*(1+prsn/12)**(12*srok))/((1+prsn/12)**(12*srok)-1);
     let sumvp=platmn*12*srok;
     let sumkv=(platmn*((1+prsv/12)**(srok*12)-1))/(prsv/12*(1+prsv/12)**(srok*12));
@@ -111,7 +149,7 @@ function result(formDataObj)
     let cenakmv30=obsv/(Number(kvm)+30);
     let cenakmv40=obsv/(Number(kvm)+40);
     
-    formDataObj.firstmoney =formDataObj.pricenew-formDataObj.firstmoney;
+    //formDataObj.firstmoney =formDataObj.pricenew-formDataObj.firstmoney;
     div = document.createElement('div');
     div.classList.add('forma');
     div.id='result';
@@ -119,68 +157,65 @@ function result(formDataObj)
 
     p = document.createElement('p');
     p.id = 'pid';
-    p.innerText=`Платёж в месяц в новостройке:  ${platmn.toFixed(2)} руб.`;
+    p.innerText=`Платёж в месяц в новостройке:  ${numberWithSpaces(platmn.toFixed(2))} руб.`;
     div.appendChild(p);  
 
     p=document.createElement('p');
     p.id='pid';
-    p.innerText=`Сумма выплат в новостройке: ${sumvp.toFixed(2)} руб.`;
+    p.innerText=`Сумма выплат в новостройке: ${numberWithSpaces(sumvp.toFixed(2))} руб.`;
     div.appendChild(p);
 
     p = document.createElement('p');
     p.id = 'pid';
-    p.innerText=`Сумма кредита в ностройке:  ${sumkred.toFixed(2)} руб.`;
+    p.innerText=`Сумма кредита в ностройке:  ${numberWithSpaces(sumkred.toFixed(2))} руб.`;
     div.appendChild(p);
     
     p = document.createElement('p');
     p.id = 'pid';
-    p.innerText=`Сумма кредита во вторичке:  ${sumkv.toFixed(2)} руб. `;
+    p.innerText=`Сумма кредита во вторичке:  ${numberWithSpaces(sumkv.toFixed(2))} руб. `;
     div.appendChild(p);
 
     p = document.createElement('p');
     p.id = 'pid';
-    p.innerText=`Общая сумма во вторичке:  ${obsv.toFixed(2)} руб. `;
+    p.innerText=`Общая сумма во вторичке:  ${numberWithSpaces(obsv.toFixed(2))} руб. `;
     div.appendChild(p);
 
     p = document.createElement('p');
     p.id = 'pid';
-    p.innerText=`Цена за кв.м. в новостройке:  ${cenakmn.toFixed(2)} руб. `;
+    p.innerText=`Цена за кв.м. в новостройке:  ${numberWithSpaces(cenakmn.toFixed(2))} руб. `;
     div.appendChild(p);
 
     p = document.createElement('p');
     p.id = 'pid';
-    p.innerText=`Максимальная цена за кв.м. во вторичке за квартиру ${kvm} кв.м. :  ${cenakmv.toFixed(2)} руб. `;
+    p.innerText=`Максимальная цена за кв.м. во вторичке за квартиру ${kvm} кв.м. :  ${numberWithSpaces(cenakmv.toFixed(2))} руб. `;
     div.appendChild(p);
 
     p = document.createElement('p');
     p.id = 'pid';
-    p.innerText=`Максимальная цена за кв.м. во вторичке за квартиру ${Number(kvm)+10} кв.м. :  ${cenakmv10.toFixed(2)} руб. `;
+    p.innerText=`Максимальная цена за кв.м. во вторичке за квартиру ${Number(kvm)+10} кв.м. :  ${numberWithSpaces(cenakmv10.toFixed(2))} руб. `;
     div.appendChild(p);
 
     p = document.createElement('p');
     p.id = 'pid';
-    p.innerText=`Максимальная цена за кв.м. во вторичке за квартиру ${Number(kvm)+20} кв.м. :  ${cenakmv20.toFixed(2)} руб. `;
+    p.innerText=`Максимальная цена за кв.м. во вторичке за квартиру ${Number(kvm)+20} кв.м. :  ${numberWithSpaces(cenakmv20.toFixed(2))} руб. `;
     div.appendChild(p);
 
     p = document.createElement('p');
     p.id = 'pid';
-    p.innerText=`Максимальная цена за кв.м. во вторичке за квартиру ${Number(kvm)+30} кв.м. :  ${cenakmv30.toFixed(2)} руб. `;
+    p.innerText=`Максимальная цена за кв.м. во вторичке за квартиру ${Number(kvm)+30} кв.м. :  ${numberWithSpaces(cenakmv30.toFixed(2))} руб. `;
     div.appendChild(p);
 
     p = document.createElement('p');
     p.id = 'pid';
-    p.innerText=`Максимальная цена за кв.м. во вторичке за квартиру ${Number(kvm)+40} кв.м. :  ${cenakmv40.toFixed(2)} руб. `;
+    p.innerText=`Максимальная цена за кв.м. во вторичке за квартиру ${Number(kvm)+40} кв.м. :  ${numberWithSpaces(cenakmv40.toFixed(2))} руб. `;
     div.appendChild(p);
+
+    
 };
 
 </script>
 
 </div>
-
-
-
-</body>
-
 
 
 
