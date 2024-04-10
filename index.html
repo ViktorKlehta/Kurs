@@ -131,6 +131,7 @@ function result(formDataObj)
     let prn=formDataObj.pricenew.replace(/\s+/g, '');
     let frm=formDataObj.firstmoney.replace(/\s+/g, '');
     let prsn=formDataObj.procentstnew;
+	kvm=kvm.replace(/,/g,'.');
     prsn=prsn.replace(/,/g,'.');
     prsn=prsn/100;
     let srok=formDataObj.srok;
